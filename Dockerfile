@@ -1,6 +1,7 @@
 # ── Stage 1: Build ────────────────────────────────────────────────────────────
 FROM eclipse-temurin:21-jdk-alpine AS build
 WORKDIR /app
+RUN mkdir -p /app/logs
 
 # Install Maven
 RUN apk add --no-cache maven
@@ -16,7 +17,7 @@ RUN mvn package -DskipTests -q
 # ── Stage 2: Runtime ──────────────────────────────────────────────────────────
 FROM eclipse-temurin:21-jre-alpine
 WORKDIR /app
-
+RUN mkdir -p /app/logs
 # Non-root user for security
 RUN addgroup -S appgroup && adduser -S appuser -G appgroup
 USER appuser
