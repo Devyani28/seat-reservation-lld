@@ -1,82 +1,36 @@
 <?xml version="1.0" encoding="UTF-8"?>
+
 <configuration>
 
-    <property name="LOG_DIR"     value="${LOG_DIR:-logs}"/>
-    <property name="LOG_PATTERN" value="%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level [%X{requestId:-}] [%X{userId:-}] %logger{36} - %msg%n"/>
+    <property name="LOG_PATTERN"
+              value="%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level [%X{requestId:-}] [%X{userId:-}] %logger{36} - %msg%n"/>
 
-    <!-- ── sr-app.log : system / startup logs ─────────────────────────────── -->
-    <!-- Receives everything EXCEPT com.seatreservation (filtered out below)   -->
-    <appender name="APP_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>${LOG_DIR}/sr-app.log</file>
-        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>${LOG_DIR}/sr-app.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
-            <timeBasedFileNamingAndTriggeringPolicy
-                class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
-                <maxFileSize>50MB</maxFileSize>
-            </timeBasedFileNamingAndTriggeringPolicy>
-            <maxHistory>7</maxHistory>
-        </rollingPolicy>
+    <!-- Console -->
+    <appender name="CONSOLE"
+              class="ch.qos.logback.core.ConsoleAppender">
+
         <encoder>
             <pattern>${LOG_PATTERN}</pattern>
         </encoder>
+
     </appender>
 
-    <!-- ── sr-api.log : API flow logs ─────────────────────────────────────── -->
-    <!-- Receives only com.seatreservation loggers                             -->
-    <appender name="API_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>${LOG_DIR}/sr-api.log</file>
-        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>${LOG_DIR}/sr-api.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
-            <timeBasedFileNamingAndTriggeringPolicy
-                class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
-                <maxFileSize>50MB</maxFileSize>
-            </timeBasedFileNamingAndTriggeringPolicy>
-            <maxHistory>7</maxHistory>
-        </rollingPolicy>
-        <encoder>
-            <pattern>${LOG_PATTERN}</pattern>
-        </encoder>
-    </appender>
-
-    <!-- ── Console (always on, mirrors both streams) ──────────────────────── -->
-    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
-        <encoder>
-            <pattern>${LOG_PATTERN}</pattern>
-        </encoder>
-    </appender>
-
-    <!-- ── Async wrappers (non-blocking file writes under load) ───────────── -->
-    <appender name="ASYNC_APP" class="ch.qos.logback.classic.AsyncAppender">
-        <queueSize>512</queueSize>
-        <discardingThreshold>0</discardingThreshold>
-        <appender-ref ref="APP_FILE"/>
-    </appender>
-
-    <appender name="ASYNC_API" class="ch.qos.logback.classic.AsyncAppender">
-        <queueSize>512</queueSize>
-        <discardingThreshold>0</discardingThreshold>
-        <appender-ref ref="API_FILE"/>
-    </appender>
-
-    <!-- ── API logger : com.seatreservation → sr-api.log only ────────────── -->
-    <!-- additivity=false prevents these from also going to the root logger    -->
+    <!-- API logs -->
     <logger name="com.seatreservation" level="INFO" additivity="false">
-        <appender-ref ref="ASYNC_API"/>
         <appender-ref ref="CONSOLE"/>
     </logger>
 
-    <!-- ── Root logger : everything else → sr-app.log ────────────────────── -->
+    <!-- Root logs -->
     <root level="INFO">
-        <appender-ref ref="ASYNC_APP"/>
         <appender-ref ref="CONSOLE"/>
     </root>
 
     <!-- Suppress noisy Spring internals -->
-    <logger name="org.springframework.security"          level="WARN"/>
-    <logger name="org.hibernate.SQL"                     level="WARN"/>
-    <logger name="org.hibernate.orm.jdbc.bind"           level="WARN"/>
-    <logger name="com.zaxxer.hikari"                     level="INFO"/>
-    <logger name="org.springframework.web.servlet"       level="WARN"/>
+    <logger name="org.springframework.security" level="WARN"/>
+    <logger name="org.hibernate.SQL" level="WARN"/>
+    <logger name="org.hibernate.orm.jdbc.bind" level="WARN"/>
+    <logger name="com.zaxxer.hikari" level="INFO"/>
+    <logger name="org.springframework.web.servlet" level="WARN"/>
     <logger name="org.springframework.boot.autoconfigure" level="WARN"/>
 
 </configuration>
